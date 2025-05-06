@@ -12,6 +12,7 @@ const categories = ['Trending Now', 'All', 'New', 'Mens', 'Womens'];
 const HomeScreen = () => {
   const [products, setProducts] = useState(data.products);
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [searchText, setSearchText] = useState('');
 
   const handleLiked = item => {
     const newProducts = products.map(prod => {
@@ -28,6 +29,21 @@ const HomeScreen = () => {
     setProducts(newProducts);
   };
 
+  const handleSearch = text => {
+    setSearchText(text);
+
+    if (text === '') {
+      setProducts(data.products);
+      return;
+    }
+
+    const newProducts = products.filter(item => {
+      return item.title?.toLowerCase().includes(text.toLowerCase());
+    });
+
+    setProducts([...newProducts]);
+  };
+
   return (
     <LinearGradient colors={['#FDF0F3', '#FFFBFC']} style={styles.container}>
       <Header />
@@ -42,7 +58,12 @@ const HomeScreen = () => {
               <View style={styles.iconContainer}>
                 <Fontisto name={'search'} size={26} color={'#C0C0C0'} />
               </View>
-              <TextInput style={styles.textInput} placeholder="Search" />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Search"
+                onChangeText={text => handleSearch(text)}
+                value={searchText}
+              />
             </View>
             <FlatList
               data={categories}
@@ -59,15 +80,18 @@ const HomeScreen = () => {
             />
           </>
         }
-        renderItem={({item, index}) => (
-          <ProductCard
-            item={item}
-            keyExtractor={index}
-            handleLiked={handleLiked}
-          />
-        )}
+        renderItem={({item, index}) => {
+          return (
+            <ProductCard
+              item={item}
+              keyExtractor={index}
+              handleLiked={handleLiked}
+            />
+          );
+        }}
         numColumns={2}
         showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.id}
         contentContainerStyle={{
           paddingBottom: 150,
         }}
